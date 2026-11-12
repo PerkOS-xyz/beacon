@@ -1,0 +1,29 @@
+{
+  "name": "orrery",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Privacy-first, multi-tenant web and API analytics for projects building on Stellar.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "tsc -b services/ingest services/api",
+    "typecheck": "tsc -b services/ingest services/api",
+    "test": "vitest run",
+    "clean": "tsc -b --clean services/ingest services/api"
+  },
+  "devDependencies": {
+    "@stellar/stellar-base": "15.0.0",
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}

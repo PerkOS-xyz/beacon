@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { Db } from "./db.js";
+import type { Db } from "@orrery/db";
 
 export function createApp(deps: { db: Db }) {
   const app = new Hono();

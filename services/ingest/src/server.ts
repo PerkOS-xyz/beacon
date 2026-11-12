@@ -1,8 +1,6 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { serve } from "@hono/node-server";
 import { createApp } from "./app.js";
-import { createPool, migrate } from "./db.js";
+import { createPool, migrate } from "@orrery/db";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -12,8 +10,7 @@ if (!databaseUrl) {
 const port = Number(process.env.PORT ?? 8080);
 
 const pool = createPool(databaseUrl);
-const migrationsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../migrations");
-const applied = await migrate(pool, migrationsDir);
+const applied = await migrate(pool);
 console.log(applied.length ? `Applied migrations: ${applied.join(", ")}` : "Database schema is up to date");
 
 const app = createApp({ db: pool });
