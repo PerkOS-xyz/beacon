@@ -1,4 +1,4 @@
-# Beacon OpenTelemetry Collector, day 1 skeleton.
+# Orrery OpenTelemetry Collector, day 1 skeleton.
 # Accepts OTLP over HTTP and only runs a metrics pipeline. Traces and logs have
 # no pipeline, so they are never stored.
 # Later: tenant keys, spans converted to metrics and then dropped, Stellar-aware

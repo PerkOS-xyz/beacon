@@ -2,14 +2,14 @@
 # Local defaults use http:// and *.localhost. In production set real hostnames
 # without a scheme and Caddy obtains certificates on its own.
 
-{$BEACON_UMAMI_SITE} {
+{$ORRERY_UMAMI_SITE} {
 	reverse_proxy umami:3000
 }
 
-{$BEACON_INGEST_SITE} {
+{$ORRERY_INGEST_SITE} {
 	reverse_proxy ingest:8080
 }
 
-{$BEACON_OTLP_SITE} {
+{$ORRERY_OTLP_SITE} {
 	reverse_proxy collector:4318
 }

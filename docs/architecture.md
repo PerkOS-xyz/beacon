@@ -1,6 +1,6 @@
 # Architecture
 
-Beacon is one stack that a single operator can run, and later hand over, from this repo alone.
+Orrery is one stack that a single operator can run, and later hand over, from this repo alone.
 
 ```mermaid
 flowchart LR
@@ -9,7 +9,7 @@ flowchart LR
         App["API instrumented with OpenTelemetry"]
         APM["The tenant's own APM"]
     end
-    subgraph Beacon["Beacon"]
+    subgraph Orrery["Orrery"]
         Caddy["Caddy: TLS and routing"]
         Umami["Umami: web analytics"]
         OTel["OpenTelemetry Collector"]
@@ -25,17 +25,17 @@ flowchart LR
 
 | Component | Role | Image or source |
 |---|---|---|
-| PostgreSQL | One instance, two databases: `umami` for web analytics, `beacon` for tenants and API metrics | `postgres:17.11-alpine` |
+| PostgreSQL | One instance, two databases: `umami` for web analytics, `orrery` for tenants and API metrics | `postgres:17.11-alpine` |
 | Umami | Privacy-first web analytics, collected only from frontend code | `ghcr.io/umami-software/umami:3.4.1` |
 | OpenTelemetry Collector | Receives OTLP over HTTP. Keeps metrics; traces, spans and logs are never stored | `otel/opentelemetry-collector-contrib:0.164.0` |
-| Ingest | Beacon's own service: tenants, standardized API metrics, operator API | `services/ingest` (TypeScript, Hono, pg) |
+| Ingest | Orrery's own service: tenants, standardized API metrics, operator API | `services/ingest` (TypeScript, Hono, pg) |
 | Caddy | Single entry point, automatic HTTPS in production | `caddy:2.11.9-alpine` |
 
 Every image is pinned to a version. Upgrading is a reviewed change in this repo, never an automatic pull.
 
 ## Why Umami
 
-The RFP asks for a base of either Umami or GoatCounter. Beacon uses Umami because:
+The RFP asks for a base of either Umami or GoatCounter. Orrery uses Umami because:
 
 - **PostgreSQL is its only database.** The RFP stores API metrics in PostgreSQL, so web and API data share one engine, one backup and one restore procedure.
 - **Multi-user and team model built in.** Teams map directly to tenants, which gives tenant isolation a native starting point instead of one instance per project.

@@ -1,14 +1,14 @@
-# Beacon local and single-host stack.
+# Orrery local and single-host stack.
 # Run from the repo root: docker compose -f deploy/docker-compose.yml up -d --build
 # Every image is pinned to a version. Upgrades are deliberate.
 
-name: beacon
+name: orrery
 
 services:
   db:
     image: postgres:17.11-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-beacon}
+      POSTGRES_USER: ${POSTGRES_USER:-orrery}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in deploy/.env}
       POSTGRES_DB: umami
     volumes:
@@ -24,7 +24,7 @@ services:
   umami:
     image: ghcr.io/umami-software/umami:3.4.1
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-beacon}:${POSTGRES_PASSWORD}@db:5432/umami
+      DATABASE_URL: postgresql://${POSTGRES_USER:-orrery}:${POSTGRES_PASSWORD}@db:5432/umami
       APP_SECRET: ${UMAMI_APP_SECRET:?Set UMAMI_APP_SECRET in deploy/.env}
       TWO_FACTOR_ENCRYPTION_KEY: ${UMAMI_TWO_FACTOR_KEY:?Set UMAMI_TWO_FACTOR_KEY in deploy/.env}
       DISABLE_TELEMETRY: "1"
@@ -43,7 +43,7 @@ services:
     build:
       context: ../services/ingest
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-beacon}:${POSTGRES_PASSWORD}@db:5432/beacon
+      DATABASE_URL: postgresql://${POSTGRES_USER:-orrery}:${POSTGRES_PASSWORD}@db:5432/orrery
       PORT: "8080"
     depends_on:
       db:
@@ -57,9 +57,9 @@ services:
 
   collector:
     image: otel/opentelemetry-collector-contrib:0.164.0
-    command: ["--config=/etc/beacon/collector.yaml"]
+    command: ["--config=/etc/orrery/collector.yaml"]
     volumes:
-      - ../collector/config.yaml:/etc/beacon/collector.yaml:ro
+      - ../collector/config.yaml:/etc/orrery/collector.yaml:ro
     depends_on:
       ingest:
         condition: service_healthy
@@ -68,12 +68,12 @@ services:
   caddy:
     image: caddy:2.11.9-alpine
     ports:
-      - "${BEACON_HTTP_PORT:-8080}:80"
-      - "${BEACON_HTTPS_PORT:-8443}:443"
+      - "${ORRERY_HTTP_PORT:-8080}:80"
+      - "${ORRERY_HTTPS_PORT:-8443}:443"
     environment:
-      BEACON_UMAMI_SITE: ${BEACON_UMAMI_SITE:-http://analytics.localhost}
-      BEACON_INGEST_SITE: ${BEACON_INGEST_SITE:-http://ingest.localhost}
-      BEACON_OTLP_SITE: ${BEACON_OTLP_SITE:-http://otlp.localhost}
+      ORRERY_UMAMI_SITE: ${ORRERY_UMAMI_SITE:-http://analytics.localhost}
+      ORRERY_INGEST_SITE: ${ORRERY_INGEST_SITE:-http://ingest.localhost}
+      ORRERY_OTLP_SITE: ${ORRERY_OTLP_SITE:-http://otlp.localhost}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data

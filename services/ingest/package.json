@@ -1,8 +1,8 @@
 {
-  "name": "@beacon/ingest",
+  "name": "@orrery/ingest",
   "version": "0.1.0",
   "private": true,
-  "description": "Beacon ingest service: receives standardized API metrics and writes them to PostgreSQL.",
+  "description": "Orrery ingest service: receives standardized API metrics and writes them to PostgreSQL.",
   "license": "MIT",
   "type": "module",
   "engines": {

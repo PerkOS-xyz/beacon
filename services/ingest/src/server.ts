@@ -18,7 +18,7 @@ console.log(applied.length ? `Applied migrations: ${applied.join(", ")}` : "Data
 
 const app = createApp({ db: pool });
 const server = serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, (info) => {
-  console.log(`Beacon ingest listening on ${info.port}`);
+  console.log(`Orrery ingest listening on ${info.port}`);
 });
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
