@@ -13,3 +13,14 @@
 {$ORRERY_OTLP_SITE} {
 	reverse_proxy collector:4318
 }
+
+# The portal and its API share one origin, so the session cookie stays first-party.
+# The portal's static files are added here on day 5.
+{$ORRERY_APP_SITE} {
+	handle_path /api/* {
+		reverse_proxy api:8080
+	}
+	handle {
+		respond "Orrery" 200
+	}
+}

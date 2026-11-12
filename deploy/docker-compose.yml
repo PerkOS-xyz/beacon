@@ -41,12 +41,41 @@ services:
 
   ingest:
     build:
-      context: ../services/ingest
+      context: ..
+      args:
+        SERVICE: ingest
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-orrery}:${POSTGRES_PASSWORD}@db:5432/orrery
       PORT: "8080"
     depends_on:
       db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      args:
+        SERVICE: api
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-orrery}:${POSTGRES_PASSWORD}@db:5432/orrery
+      PORT: "8080"
+      ORRERY_APP_ORIGIN: ${ORRERY_APP_ORIGIN:-http://app.localhost:8080}
+      ORRERY_SECRET_KEY: ${ORRERY_SECRET_KEY:?Set ORRERY_SECRET_KEY in deploy/.env}
+      ORRERY_OPERATORS: ${ORRERY_OPERATORS:-}
+      ORRERY_COOKIE_SECURE: ${ORRERY_COOKIE_SECURE:-true}
+      UMAMI_URL: http://umami:3000
+      UMAMI_ADMIN_USER: ${UMAMI_ADMIN_USER:-admin}
+      UMAMI_ADMIN_PASSWORD: ${UMAMI_ADMIN_PASSWORD:?Set UMAMI_ADMIN_PASSWORD in deploy/.env}
+    depends_on:
+      db:
+        condition: service_healthy
+      umami:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health || exit 1"]
@@ -74,6 +103,7 @@ services:
       ORRERY_UMAMI_SITE: ${ORRERY_UMAMI_SITE:-http://analytics.localhost}
       ORRERY_INGEST_SITE: ${ORRERY_INGEST_SITE:-http://ingest.localhost}
       ORRERY_OTLP_SITE: ${ORRERY_OTLP_SITE:-http://otlp.localhost}
+      ORRERY_APP_SITE: ${ORRERY_APP_SITE:-http://app.localhost}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
@@ -81,6 +111,8 @@ services:
       umami:
         condition: service_healthy
       ingest:
+        condition: service_healthy
+      api:
         condition: service_healthy
     restart: unless-stopped
 
