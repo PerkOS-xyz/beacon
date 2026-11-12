@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17.11-alpine
+        env:
+          POSTGRES_PASSWORD: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      # Actions are pinned to commit SHAs, not tags, so a moved tag cannot change what runs.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:ci@localhost:5432/postgres
+      - name: Validate the compose file
+        run: |
+          cp deploy/.env.example deploy/.env
+          sed -i -e 's/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=ci/' \
+                 -e 's/^UMAMI_APP_SECRET=$/UMAMI_APP_SECRET=ci/' \
+                 -e 's/^UMAMI_TWO_FACTOR_KEY=$/UMAMI_TWO_FACTOR_KEY=ci/' \
+                 -e "s/^ORRERY_SECRET_KEY=$/ORRERY_SECRET_KEY=$(openssl rand -hex 32)/" deploy/.env
+          docker compose -f deploy/docker-compose.yml --env-file deploy/.env config --quiet
